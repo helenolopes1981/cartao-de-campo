@@ -1,10 +1,10 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><title>Cartão de Campo 5D III</title>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"></head><body><title>Cartão de Campo 5D III</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
-/* Layout: folha de campo A4. Faixa de modos C1-C3 no topo, momentos em grade, flash/problemas/bolsa embaixo. */
+/* Layout: no topo, seletor de cenário que devolve a configuração de partida num "visor" tipo LCD da câmera; embaixo, o cartão completo de uma folha A4. */
 :root {
   --paper: #F4F6F8;
   --panel: #FFFFFF;
@@ -18,6 +18,9 @@
   --ok: #2E7D4F;
   --warn: #B7791F;
   --bad: #B23A3A;
+  --lcd-bg: #C9D1C1;
+  --lcd-fg: #1B2219;
+  --lcd-dim: #4E5A4A;
   --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --body: "Barlow", "Segoe UI", system-ui, sans-serif;
   --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
@@ -26,13 +29,15 @@
   :root:not([data-theme="light"]) {
     --paper: #0F141A; --panel: #171E27; --ink: #E6EAEF; --muted: #98A4B3; --line: #2A3441;
     --amber: #F0A23A; --amber-soft: #36270F; --steel: #8DB6E0; --steel-soft: #1B2938;
-    --ok: #6CC08F; --warn: #E0AE55; --bad: #E77B7B; color-scheme: dark;
+    --ok: #6CC08F; --warn: #E0AE55; --bad: #E77B7B;
+    --lcd-bg: #19140A; --lcd-fg: #F3B24A; --lcd-dim: #A07E40; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #0F141A; --panel: #171E27; --ink: #E6EAEF; --muted: #98A4B3; --line: #2A3441;
   --amber: #F0A23A; --amber-soft: #36270F; --steel: #8DB6E0; --steel-soft: #1B2938;
-  --ok: #6CC08F; --warn: #E0AE55; --bad: #E77B7B; color-scheme: dark;
+  --ok: #6CC08F; --warn: #E0AE55; --bad: #E77B7B;
+  --lcd-bg: #19140A; --lcd-fg: #F3B24A; --lcd-dim: #A07E40; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -50,6 +55,8 @@ h3 { font-size: 19px; font-weight: 700; }
 p, ul, ol, dl { margin: 0; }
 b { font-weight: 600; }
 .v { font-family: var(--mono); font-weight: 700; font-size: .86em; white-space: nowrap; }
+button, input { font: inherit; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
 /* topo */
 .top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; border-bottom: 2px solid var(--ink); padding-bottom: 10px; }
@@ -58,12 +65,66 @@ h1 { font-size: 40px; font-weight: 700; letter-spacing: -.01em; }
 .kit { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .kit li { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); background: var(--panel); padding: 3px 7px; border-radius: 3px; }
 
-/* sempre assim */
+/* ===== seletor de cenário ===== */
+.tool { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 14px; align-items: start; }
+.picker { display: grid; gap: 12px; }
+.grp { display: grid; gap: 6px; }
+.grp-name { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  padding: 9px 12px; border-radius: 3px; cursor: pointer; font-weight: 500; font-size: 14px; line-height: 1.15;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.chip:hover { border-color: var(--ink); }
+.places { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.place { text-align: left; display: grid; gap: 2px; padding: 11px 12px; }
+.place strong { font-family: var(--display); font-size: 19px; font-weight: 700; line-height: 1; }
+.place small { font-size: 12px; opacity: .75; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.mods { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--line); }
+.mods-title { width: 100%; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding-top: 8px; }
+.mod { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--panel); padding: 8px 11px; border-radius: 3px; cursor: pointer; font-size: 14px; user-select: none; }
+.mod input { appearance: none; width: 30px; height: 17px; border-radius: 9px; background: var(--line); position: relative; margin: 0; cursor: pointer; flex: none; transition: background .12s; }
+.mod input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 50%; background: var(--panel); transition: transform .12s; }
+.mod input:checked { background: var(--amber); }
+.mod input:checked::after { transform: translateX(13px); }
+.mod:has(input:checked) { border-color: var(--amber); background: var(--amber-soft); }
+
+.result { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; scroll-margin-top: 12px; }
+.lcd { background: var(--lcd-bg); color: var(--lcd-fg); padding: 12px 14px 14px; display: grid; gap: 10px; }
+.lcd-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dialbadge { font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1; border: 2px solid var(--lcd-fg); padding: 2px 7px 1px; border-radius: 3px; }
+.lcd-name { font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.05; }
+.lcd-mode { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--lcd-dim); text-transform: uppercase; letter-spacing: .06em; }
+.readout { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 12px; }
+.readout div { display: grid; gap: 2px; min-width: 0; }
+.readout small { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--lcd-dim); }
+.readout strong { font-family: var(--mono); font-weight: 700; font-size: 26px; line-height: 1.05; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.readout strong.long { font-size: 18px; }
+
+.res-body { padding: 12px 14px 14px; display: grid; gap: 12px; }
+.applied { display: flex; flex-wrap: wrap; gap: 6px; }
+.applied span { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; padding: 2px 6px; border-radius: 3px; background: var(--amber-soft); color: var(--amber); }
+.applied span.skip { background: var(--paper); color: var(--muted); }
+.fields { display: grid; grid-template-columns: 74px 1fr; gap: 5px 10px; font-size: 14px; }
+.fields dt { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-top: 3px; }
+.fields dd { margin: 0; }
+.notes { display: grid; gap: 4px; }
+.notes p { font-size: 13.5px; border-left: 3px solid var(--warn); padding-left: 8px; }
+.howto { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.howto h3 { font-size: 15px; margin-bottom: 4px; }
+.howto ul { padding-left: 17px; font-size: 13.5px; display: grid; gap: 3px; }
+.howto .fix h3 { color: var(--bad); }
+
+.card-title { border-top: 2px solid var(--ink); padding-top: 12px; margin-top: 6px; }
+
+/* ===== cartão completo ===== */
 .always { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: baseline; background: var(--steel-soft); border-radius: 4px; padding: 10px 12px; }
 .always ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; }
 .always li::before { content: "■ "; color: var(--steel); font-size: 9px; vertical-align: 2px; }
 
-/* modos */
 .modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .mode { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--amber); border-radius: 4px; padding: 10px 12px 12px; display: grid; gap: 7px; align-content: start; }
 .mode.noflash { border-top-color: var(--steel); }
@@ -79,7 +140,6 @@ h1 { font-size: 40px; font-weight: 700; letter-spacing: -.01em; }
 .alt { font-size: 12.5px; border-left: 2px solid var(--line); padding-left: 8px; color: var(--muted); }
 .alt b { color: var(--ink); }
 
-/* momentos */
 .moments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
 .card .expo span { font-size: 11.5px; }
@@ -87,12 +147,10 @@ h1 { font-size: 40px; font-weight: 700; letter-spacing: -.01em; }
 .tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--amber); }
 .tag.blue { color: var(--steel); }
 
-/* faixa inferior */
 .lower { display: grid; grid-template-columns: 1.15fr 1fr 0.8fr; gap: 10px; }
 .box { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
 .box ol, .box ul { padding-left: 18px; font-size: 13px; display: grid; gap: 2px; }
 
-/* régua de ISO */
 .iso { display: grid; gap: 4px; }
 .iso-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
 .iso-bar div { font-family: var(--mono); font-size: 11px; font-weight: 700; text-align: center; padding: 4px 0; border-radius: 2px; color: var(--panel); }
@@ -114,22 +172,28 @@ td:first-child { font-weight: 600; }
 footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
 
 @media (max-width: 900px) {
+  .tool { grid-template-columns: 1fr; }
   .modes, .moments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .lower { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 600px) {
-  .modes, .moments, .lower { grid-template-columns: 1fr; }
+  .modes, .moments, .lower, .howto { grid-template-columns: 1fr; }
   .always { grid-template-columns: 1fr; }
+  .readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   h1 { font-size: 32px; }
 }
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}
 
-/* impressão: uma folha A4, sempre clara */
+/* impressão: só o cartão, uma folha A4, sempre claro */
 @media print {
   :root:root:root {
     --paper: #FFFFFF; --panel: #FFFFFF; --ink: #000000; --muted: #444B55; --line: #BFC6CE;
     --amber: #8A4D00; --amber-soft: #F7E6CC; --steel: #234C73; --steel-soft: #EAF0F6;
     --ok: #2E7D4F; --warn: #A86A12; --bad: #A23030; color-scheme: light;
   }
+  .tool, .card-title { display: none !important; }
   @page { size: A4; margin: 7mm; }
   body { padding: 0; font-size: 8.2pt; line-height: 1.28; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .sheet { max-width: none; gap: 2.4mm; }
@@ -165,6 +229,58 @@ footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--lin
       <li>5D Mark III</li><li>24-70 f/2.8</li><li>85 f/1.8</li><li>Speedlite 600</li><li>YN-622C</li><li>LED YN600</li>
     </ul>
   </header>
+
+  <!-- ===== seletor ===== -->
+  <section class="tool" aria-label="Configuração por cenário">
+    <div class="picker">
+      <div class="grp">
+        <h2>1. Onde você está?</h2>
+        <div class="places" id="places"></div>
+      </div>
+      <div class="grp">
+        <h2>2. O que está acontecendo?</h2>
+        <div class="chips" id="moments"></div>
+      </div>
+      <div class="mods" id="mods">
+        <span class="mods-title">3. Como está o lugar?</span>
+        <label class="mod" id="lb-ceiling"><input type="checkbox" id="m-ceiling"> Teto alto ou escuro</label>
+        <label class="mod" id="lb-dark"><input type="checkbox" id="m-dark"> Muito escuro</label>
+      </div>
+    </div>
+
+    <article class="result" id="result" aria-live="polite">
+      <div class="lcd">
+        <div class="lcd-head">
+          <span class="dialbadge" id="r-dial">C1</span>
+          <span class="lcd-name" id="r-name">Making of</span>
+          <span class="lcd-mode" id="r-mode">M · ISO fixo</span>
+        </div>
+        <div class="readout">
+          <div><small>Abertura</small><strong id="r-f">f/2.8</strong></div>
+          <div><small>Velocidade</small><strong id="r-s">1/100</strong></div>
+          <div><small>ISO</small><strong id="r-iso">800</strong></div>
+          <div><small>FEC</small><strong id="r-fec">0</strong></div>
+        </div>
+      </div>
+      <div class="res-body">
+        <div class="applied" id="r-applied" hidden></div>
+        <dl class="fields">
+          <dt>Lente</dt><dd id="r-lens"></dd>
+          <dt>Flash</dt><dd id="r-flash"></dd>
+          <dt>Foco</dt><dd id="r-focus"></dd>
+          <dt>Medição</dt><dd id="r-meter"></dd>
+          <dt>Disparo</dt><dd id="r-drive"></dd>
+        </dl>
+        <div class="notes" id="r-notes"></div>
+        <div class="howto">
+          <div><h3>Faça assim</h3><ul id="r-do"></ul></div>
+          <div class="fix"><h3>Se der errado</h3><ul id="r-fix"></ul></div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <h2 class="card-title">Cartão completo</h2>
 
   <section class="always">
     <h2>Deixe sempre assim</h2>
@@ -202,7 +318,7 @@ footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--lin
     </article>
     <article class="mode noflash">
       <div class="mode-head"><span class="dial">C3</span><h3>Sem flash</h3></div>
-      <p class="when">Igreja que proíbe flash, momentos discretos</p>
+      <p class="when">Luz natural boa (janela), momentos discretos</p>
       <div class="expo"><span>M</span><span>f/2.8</span><span>1/250</span><span>ISO auto 100–6400</span></div>
       <dl>
         <dt>Disparo</dt><dd><b>Contínuo silencioso</b></dd>
@@ -267,11 +383,11 @@ footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--lin
     <article class="card">
       <span class="tag">Dia</span>
       <h3>Sol forte em f/2.8</h3>
-      <div class="expo"><span>1/200</span><span>ISO 100</span><span>FEC −1 a −1⅓</span></div>
+      <div class="expo"><span>1/1000–1/4000</span><span>ISO 100</span><span>HSS FEC −1</span></div>
       <ul>
         <li>1º: <b>casal na sombra</b></li>
-        <li>2º: sol atrás + flash direto</li>
-        <li>3º: <b>HSS</b> pelo 622C (gasta muita pilha) · 4º: filtro ND</li>
+        <li>2º: sol atrás + flash em <b>HSS</b> (acima de 1/200 só com HSS)</li>
+        <li>HSS gasta muita pilha: flash perto do casal · ou filtro ND</li>
       </ul>
     </article>
   </section>
@@ -343,4 +459,264 @@ footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--lin
 
   <footer>Valores de partida: faça uma foto de teste e ajuste. Medidas de nitidez e de potência são cálculos aproximados, e as demais escolhas são recomendação de trabalho.</footer>
 </main>
+
+<script>
+(function () {
+  var PLACES = [
+    { id: "making", name: "Making of", sub: "casa, hotel, quarto", indoor: true, night: true },
+    { id: "igreja", name: "Igreja", sub: "cerimônia", indoor: true, night: true },
+    { id: "recepcao", name: "Recepção", sub: "salão, mesas, pista", indoor: true, night: true },
+    { id: "dia", name: "Ar livre de dia", sub: "sol, sombra, fim de tarde", indoor: false, night: false },
+    { id: "noite", name: "Externa à noite", sub: "retratos do casal", indoor: false, night: true }
+  ];
+
+  // flash.mode: bounce = rebatido na câmera, direct = direto na câmera, hss = alta velocidade, remote = fora da câmera pelo 622C, off = desligado
+  var SCENES = [
+    { id: "making", place: "making", name: "Making of", dial: "C1",
+      lens: "24-70 em 35–70mm · detalhes com a 85", f: "f/2.8", s: "1/100", iso: [800],
+      flash: { mode: "bounce", text: "E-TTL rebatido na parede ou no teto do quarto" }, fec: "0",
+      focus: "AI Servo + AF-ON", drive: "Único",
+      todo: ["Janela boa? Desligue o flash e use a luz dela (C3).", "Rebata na parede do lado oposto à janela: a luz parece natural.", "Detalhes (vestido, sapato, alianças) com a 85 em f/2.8, bem perto."],
+      fix: ["Pele alaranjada: rebata numa parede branca, não em parede colorida.", "Quarto pequeno e escuro: suba o ISO para 1600."] },
+
+    { id: "entrada", place: "igreja", name: "Entrada da noiva", dial: "C1",
+      lens: "24-70 em 50–70mm", f: "f/2.8", s: "1/125", iso: [1600],
+      flash: { mode: "bounce", text: "E-TTL rebatido" }, fec: "−1/3",
+      focus: "AI Servo + AF-ON, ponto no rosto", drive: "Contínuo, rajadas curtas",
+      todo: ["Combine com o cerimonial onde você pode ficar no corredor.", "Fotografe abaixado no corredor e saia de lado antes de ela chegar.", "Entre uma rajada e outra, pegue a reação do noivo."],
+      fix: ["Fundo escuro: suba o ISO, não baixe a velocidade.", "Foco escapando: ponto central e AF-ON segurado acompanhando."] },
+
+    { id: "votos", place: "igreja", name: "Votos e leituras", dial: "C1",
+      lens: "24-70 em 70mm", f: "f/2.8", s: "1/125", iso: [1600],
+      flash: { mode: "bounce", text: "E-TTL rebatido, fraco" }, fec: "−2/3",
+      focus: "AI Servo + AF-ON", drive: "Contínuo silencioso",
+      todo: ["Flash fraco e rebatido não incomoda ninguém.", "Fique de lado, nunca no corredor central atrás dos noivos.", "Cace reações: pais, padrinhos, lágrimas."],
+      fix: ["Rostos escuros contra a janela do altar: FEC para 0.", "Pediram discrição: C3 (M, f/2.8, 1/250, ISO auto)."] },
+
+    { id: "aliancas", place: "igreja", name: "Troca de alianças", dial: "C1",
+      lens: "24-70 em 70mm", f: "f/2.8", s: "1/125", iso: [1600],
+      flash: { mode: "bounce", text: "E-TTL rebatido, fraco" }, fec: "−2/3",
+      focus: "AI Servo + AF-ON, ponto na mão", drive: "Contínuo, 3 a 5 fotos",
+      todo: ["Combine antes com o celebrante e com os noivos.", "Atrás do ombro do noivo, a 45°, a 2–3 m, abaixado.", "Dispare quando a aliança passa da junta do dedo. Depois, segure pra reação."],
+      fix: ["Aliança desfocada: o foco foi no rosto. Ponto na mão.", "Perdeu? Depois da cerimônia, peça 30 s pra repetirem o gesto."] },
+
+    { id: "saida", place: "igreja", name: "Saída dos noivos", dial: "C1",
+      lens: "24-70 em 24–35mm", f: "f/2.8", s: "1/200", iso: [1600],
+      flash: { mode: "direct", text: "E-TTL direto com difusor" }, fec: "0",
+      focus: "AI Servo + AF-ON, ponto central", drive: "Contínuo",
+      todo: ["Ande de costas na frente deles, a 3–4 m.", "Em 24–35mm a área nítida é maior e o foco perdoa.", "Pétalas ou arroz: rajada no momento em que jogarem."],
+      fix: ["Saída de dia, no sol: escolha Ar livre de dia.", "Flash não acompanha a rajada: suba o ISO para 3200."] },
+
+    { id: "mesas", place: "recepcao", name: "Mesas e convidados", dial: "C1",
+      lens: "24-70 em 35–50mm", f: "f/2.8", s: "1/100", iso: [800],
+      flash: { mode: "bounce", text: "E-TTL rebatido no teto atrás de você" }, fec: "0",
+      focus: "AI Servo + AF-ON", drive: "Único",
+      todo: ["Chegue, sorria, peça a foto: 2 cliques por mesa.", "Rebatendo atrás de você, a luz vem de frente e suave.", "Mesa com gente em 2 filas: 24–35mm e f/4."],
+      fix: ["Fundo preto: suba o ISO para 1600.", "Reflexo nos óculos: rebata mais de lado."] },
+
+    { id: "grupos", place: "recepcao", name: "Grupos e família", dial: "C1",
+      lens: "24-70 em 24–35mm", f: "f/4–5.6", s: "1/100", iso: [1600],
+      flash: { mode: "bounce", text: "E-TTL rebatido no teto" }, fec: "0 a +1/3",
+      focus: "One Shot + AF-ON, rosto da fila da frente", drive: "3 fotos seguidas (alguém sempre pisca)",
+      note: "Aqui vale a exceção ao f/2.8: grupo desfocado o cliente não perdoa.",
+      todo: ["Afaste-se em vez de usar 70mm.", "Fale alto, conte até 3 e faça 3 fotos.", "Mais altos atrás, ninguém escondido."],
+      fix: ["Fundo escuro em f/5.6: suba o ISO para 3200.", "Laterais escuras: rebata no teto, não direto."] },
+
+    { id: "bolo", place: "recepcao", name: "Bolo, brinde e discursos", dial: "C1",
+      lens: "24-70 em 50–70mm", f: "f/2.8", s: "1/125", iso: [1600],
+      flash: { mode: "bounce", text: "E-TTL rebatido" }, fec: "0",
+      focus: "AI Servo + AF-ON", drive: "Contínuo, rajadas curtas",
+      todo: ["Posicione-se antes: o momento dura segundos.", "Pegue o casal e a reação de quem assiste.", "Discurso: espere a risada ou a emoção, não a fala."],
+      fix: ["Flash não recarrega na rajada: suba o ISO pra ele usar menos força."] },
+
+    { id: "pista", place: "recepcao", name: "Pista (só flash)", dial: "C2",
+      lens: "24-70 em 24–35mm", f: "f/2.8", s: "1/40", iso: [1600],
+      flash: { mode: "direct", text: "E-TTL direto com difusor, ou rebatido" }, fec: "0",
+      focus: "AI Servo + AF-ON", drive: "Único ou contínuo baixo",
+      todo: ["A velocidade baixa deixa entrar a luz colorida; o flash congela as pessoas.", "Chegue perto, entre na roda.", "Fotografe de baixo pra cima pra pegar as luzes do teto."],
+      fix: ["Rastro ou fantasma demais: suba para 1/60.", "Flash esquentando ou demorando: ISO 3200."] },
+
+    { id: "pistaled", place: "recepcao", name: "Pista com LED atrás", dial: "C2",
+      lens: "24-70 em 24–35mm", f: "f/2.8", s: "1/80", iso: [1600, 3200],
+      flash: { mode: "direct", text: "E-TTL direto com difusor · LED atrás a 100%" }, fec: "0",
+      focus: "AI Servo + AF-ON (o LED ajuda o foco)", drive: "Único ou contínuo baixo",
+      todo: ["LED num tripé atrás da pista, a 2–3 m, acima das cabeças.", "Sem a placa difusora, cor ~3200K.", "Fotografe com o LED escondido atrás das pessoas."],
+      fix: ["Contorno borrado: 1/100.", "Contorno fraco: LED mais perto ou ISO 3200."] },
+
+    { id: "cerimdia", place: "dia", name: "Cerimônia de dia", dial: "M",
+      lens: "24-70 em 50–70mm", f: "f/2.8", s: "1/2000", iso: [100],
+      flash: { mode: "hss", text: "Desligado; ligue em HSS só se a sombra no rosto estiver dura" }, fec: "−1",
+      focus: "AI Servo + AF-ON", meter: "Avaliativa, confira o histograma (vestido estoura fácil)", drive: "Contínuo",
+      note: "Velocidade entre 1/1000 e 1/4000, conforme o sol. Com flash acima de 1/200, só em HSS.",
+      todo: ["De dia, sem flash costuma resolver: o HSS gasta muita pilha.", "Procure o lado em que o sol fica atrás ou de lado dos noivos.", "Vestido branco: melhor um pouco escuro que estourado."],
+      fix: ["Vestido sem detalhe: suba a velocidade.", "Sombra dura nos olhos: flash em HSS, FEC −1."] },
+
+    { id: "sol", place: "dia", name: "Casal no sol forte", dial: "M",
+      lens: "24-70 ou 85", f: "f/2.8", s: "1/2000", iso: [100],
+      flash: { mode: "hss", text: "E-TTL em HSS, direto (ative o HSS no próprio flash)" }, fec: "−1 a −1⅓",
+      focus: "AI Servo + AF-ON", meter: "Avaliativa, confira o histograma", drive: "Único",
+      note: "Em f/2.8 no sol pleno a velocidade vai a 1/1000–1/4000. Acima de 1/200 o flash só funciona em HSS.",
+      todo: ["1º: leve o casal pra sombra (escolha Sombra ou fim de tarde).", "2º: sol atrás do casal + flash em HSS na frente.", "HSS perde força: flash perto do casal, ou no 622C a 1 m."],
+      fix: ["Foto estourada: suba a velocidade (a 5D III vai até 1/8000).", "Flash fraco em HSS: chegue mais perto ou FEC 0."] },
+
+    { id: "sombra", place: "dia", name: "Sombra ou fim de tarde", dial: "M",
+      lens: "85", f: "f/2.8", s: "1/500", iso: [100, 400],
+      flash: { mode: "hss", text: "Desligado; brilho nos olhos: HSS direto" }, fec: "−1",
+      focus: "AI Servo + AF-ON, olho mais perto", drive: "Único",
+      note: "Sombra: ISO 100 e 1/500. Fim de tarde: ISO 400 e 1/250. Acima de 1/200 o flash só em HSS.",
+      todo: ["É a melhor luz do dia: suave e sem sombra dura.", "Fundo claro atrás deles fica lindo em f/2.8.", "Escurecendo: chegou a hora do flash fora (Externa à noite)."],
+      fix: ["Rosto azulado na sombra: corrija o balanço de branco no Lightroom.", "Escurecendo: suba o ISO até 1600 antes de baixar a velocidade."] },
+
+    { id: "grupodia", place: "dia", name: "Grupos de dia", dial: "M",
+      lens: "24-70 em 24–35mm", f: "f/4–5.6", s: "1/1000", iso: [100],
+      flash: { mode: "hss", text: "E-TTL em HSS, preenchimento" }, fec: "−1",
+      focus: "One Shot + AF-ON, rosto da fila da frente", drive: "3 fotos seguidas",
+      note: "Grupo de costas pro sol: ninguém aperta os olhos.",
+      todo: ["Coloque o grupo de costas pro sol ou na sombra.", "Afaste-se e use 24–35mm.", "Conte até 3 e faça 3 fotos."],
+      fix: ["Rostos escuros na contraluz: FEC 0 ou flash mais perto.", "Céu estourado: aceite, o rosto é o que importa."] },
+
+    { id: "noite", place: "noite", name: "Casal com flash fora", dial: "M",
+      lens: "24-70 ou 85", f: "f/2.8", s: "1/200", iso: [400, 800],
+      flash: { mode: "remote", text: "No 622C receptor, a 45°, a 1,5–2 m, em manual" }, fec: "1/16–1/32",
+      fecLabel: "Potência", focus: "One Shot + AF-ON, olho mais perto", drive: "Único",
+      todo: ["622C na câmera; flash num tripé ou na mão de um ajudante.", "2 ou 3 fotos de teste e ajuste a potência pelo menu da câmera.", "No fim, volte o flash pra câmera."],
+      fix: ["Casal claro demais: 1/32 ou afaste o flash.", "Quer ver o lugar atrás: suba o ISO para 1600."] },
+
+    { id: "led", place: "noite", name: "Casal com LED", dial: "M",
+      lens: "85 ou 24-70 em 70mm", f: "f/2.8", s: "1/160", iso: [800, 1600],
+      flash: { mode: "off", text: "Desligado · LED a 1 m, a 45°, com a placa difusora" }, fec: "—",
+      focus: "AI Servo + AF-ON, olho mais perto", drive: "Único",
+      todo: ["Painel de lado, a 1 m do casal, com o difusor.", "Ajuste a potência olhando: o que você vê é o que sai.", "Cor quente (~3200K) combina com festa."],
+      fix: ["Tremido: 1/200 e compense com ISO.", "Luz dura: afaste o painel ou vire um pouco pra fora."] }
+  ];
+  var KEY = "cartao5d3-v2";
+
+  var state = { place: "igreja", id: "aliancas", ceiling: false, dark: false };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && typeof saved === "object") Object.assign(state, saved); } catch (e) {}
+  if (!PLACES.some(function (p) { return p.id === state.place; })) state.place = "igreja";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var placeOf = function (id) { return PLACES.filter(function (p) { return p.id === id; })[0]; };
+  var scenesIn = function (pid) { return SCENES.filter(function (s) { return s.place === pid; }); };
+
+  function scrollToResult() {
+    if (!window.matchMedia("(max-width: 900px)").matches) return;
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $("result").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+
+  // passo 1: lugares
+  PLACES.forEach(function (p) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip place"; b.dataset.id = p.id;
+    var t = document.createElement("strong"); t.textContent = p.name;
+    var s = document.createElement("small"); s.textContent = p.sub;
+    b.appendChild(t); b.appendChild(s);
+    b.addEventListener("click", function () {
+      if (state.place !== p.id) { state.place = p.id; state.id = scenesIn(p.id)[0].id; }
+      update();
+    });
+    $("places").appendChild(b);
+  });
+
+  ["ceiling", "dark"].forEach(function (k) {
+    var el = $("m-" + k);
+    el.checked = !!state[k];
+    el.addEventListener("change", function () { state[k] = el.checked; update(); });
+  });
+
+  function isoText(arr) {
+    if (arr[0] === arr[arr.length - 1]) return String(arr[0]);
+    return arr[0] + "–" + arr[arr.length - 1];
+  }
+
+  function compute(sc, pl) {
+    var r = {
+      dial: sc.dial, mode: sc.dial === "M" ? "M · fora dos modos C" : "M · ISO fixo",
+      f: sc.f, s: sc.s, iso: isoText(sc.iso), fec: sc.fec, fecLabel: sc.fecLabel || "FEC",
+      lens: sc.lens, flash: sc.flash.text, focus: sc.focus, meter: sc.meter || "Avaliativa", drive: sc.drive,
+      notes: sc.note ? [sc.note] : [], tags: []
+    };
+
+    if (pl.indoor && state.ceiling) {
+      if (sc.flash.mode === "bounce") {
+        r.flash = "E-TTL direto com difusor, ou rebatido na parede atrás ou ao lado";
+        r.fec = sc.fec === "0" ? "−1/3" : sc.fec;
+        r.tags.push({ t: "teto alto" });
+      } else {
+        r.tags.push({ t: "teto alto: não muda", skip: true });
+      }
+    }
+
+    if (pl.night && state.dark) {
+      var up = sc.iso.map(function (x) { return Math.min(x * 2, 6400); });
+      if (sc.iso.some(function (x) { return x * 2 > 6400; })) r.notes.push("ISO no limite: aceite a foto um pouco escura e recupere no Lightroom.");
+      r.iso = isoText(up);
+      r.focus = r.focus + " · no escuro: pontos do centro" + (sc.flash.mode === "bounce" || sc.flash.mode === "direct" ? "; One Shot acende a luz vermelha do flash" : "");
+      r.tags.push({ t: "muito escuro" });
+    }
+    return r;
+  }
+
+  function fillList(el, items) {
+    el.textContent = "";
+    items.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; el.appendChild(li); });
+  }
+
+  function update() {
+    var pl = placeOf(state.place);
+    var list = scenesIn(pl.id);
+    if (!list.some(function (s) { return s.id === state.id; })) state.id = list[0].id;
+    var sc = list.filter(function (s) { return s.id === state.id; })[0];
+    var r = compute(sc, pl);
+
+    document.querySelectorAll(".place").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.id === pl.id)); });
+
+    // passo 2: momentos do lugar
+    var mom = $("moments"); mom.textContent = "";
+    list.forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = s.name;
+      b.setAttribute("aria-pressed", String(s.id === sc.id));
+      b.addEventListener("click", function () { state.id = s.id; update(); scrollToResult(); });
+      mom.appendChild(b);
+    });
+
+    // passo 3: só o que faz sentido no lugar
+    $("lb-ceiling").hidden = !pl.indoor;
+    $("lb-dark").hidden = !pl.night;
+    $("mods").hidden = !pl.indoor && !pl.night;
+
+    $("r-dial").textContent = r.dial;
+    $("r-name").textContent = sc.name;
+    $("r-mode").textContent = r.mode;
+    $("r-f").textContent = r.f;
+    $("r-s").textContent = r.s;
+    $("r-iso").textContent = r.iso;
+    $("r-fec").textContent = r.fec;
+    $("r-fec").previousElementSibling.textContent = r.fecLabel;
+    ["r-f", "r-s", "r-iso", "r-fec"].forEach(function (id) { var el = $(id); el.classList.toggle("long", el.textContent.length > 7); });
+
+    $("r-lens").textContent = r.lens;
+    $("r-flash").textContent = r.flash;
+    $("r-focus").textContent = r.focus;
+    $("r-meter").textContent = r.meter;
+    $("r-drive").textContent = r.drive;
+
+    var ap = $("r-applied"); ap.textContent = "";
+    r.tags.forEach(function (tg) { var s = document.createElement("span"); s.textContent = tg.t; if (tg.skip) s.className = "skip"; ap.appendChild(s); });
+    ap.hidden = r.tags.length === 0;
+
+    var notes = $("r-notes"); notes.textContent = "";
+    r.notes.forEach(function (n) { var p = document.createElement("p"); p.textContent = n; notes.appendChild(p); });
+
+    fillList($("r-do"), sc.todo);
+    fillList($("r-fix"), sc.fix);
+
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  update();
+})();
+</script>
 </body></html>
