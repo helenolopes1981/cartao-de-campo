@@ -1,0 +1,346 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><title>Cartão de Campo 5D III</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: folha de campo A4. Faixa de modos C1-C3 no topo, momentos em grade, flash/problemas/bolsa embaixo. */
+:root {
+  --paper: #F4F6F8;
+  --panel: #FFFFFF;
+  --ink: #17202B;
+  --muted: #566170;
+  --line: #D3D9E0;
+  --amber: #A85F00;
+  --amber-soft: #FBECD6;
+  --steel: #2D5A86;
+  --steel-soft: #E3ECF5;
+  --ok: #2E7D4F;
+  --warn: #B7791F;
+  --bad: #B23A3A;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F141A; --panel: #171E27; --ink: #E6EAEF; --muted: #98A4B3; --line: #2A3441;
+    --amber: #F0A23A; --amber-soft: #36270F; --steel: #8DB6E0; --steel-soft: #1B2938;
+    --ok: #6CC08F; --warn: #E0AE55; --bad: #E77B7B; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F141A; --panel: #171E27; --ink: #E6EAEF; --muted: #98A4B3; --line: #2A3441;
+  --amber: #F0A23A; --amber-soft: #36270F; --steel: #8DB6E0; --steel-soft: #1B2938;
+  --ok: #6CC08F; --warn: #E0AE55; --bad: #E77B7B; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--body); font-size: 14px; line-height: 1.4;
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.sheet { max-width: 1120px; margin: 0 auto; display: grid; gap: 14px; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; line-height: 1.05; }
+h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+h3 { font-size: 19px; font-weight: 700; }
+p, ul, ol, dl { margin: 0; }
+b { font-weight: 600; }
+.v { font-family: var(--mono); font-weight: 700; font-size: .86em; white-space: nowrap; }
+
+/* topo */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; border-bottom: 2px solid var(--ink); padding-bottom: 10px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-bottom: 4px; }
+h1 { font-size: 40px; font-weight: 700; letter-spacing: -.01em; }
+.kit { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.kit li { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); background: var(--panel); padding: 3px 7px; border-radius: 3px; }
+
+/* sempre assim */
+.always { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: baseline; background: var(--steel-soft); border-radius: 4px; padding: 10px 12px; }
+.always ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; }
+.always li::before { content: "■ "; color: var(--steel); font-size: 9px; vertical-align: 2px; }
+
+/* modos */
+.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mode { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--amber); border-radius: 4px; padding: 10px 12px 12px; display: grid; gap: 7px; align-content: start; }
+.mode.noflash { border-top-color: var(--steel); }
+.mode-head { display: flex; align-items: baseline; gap: 10px; }
+.dial { font-family: var(--display); font-weight: 700; font-size: 34px; line-height: .9; color: var(--amber); }
+.noflash .dial { color: var(--steel); }
+.when { font-size: 12.5px; color: var(--muted); }
+.expo { display: flex; flex-wrap: wrap; gap: 4px; }
+.expo span { font-family: var(--mono); font-weight: 700; font-size: 12.5px; background: var(--paper); border: 1px solid var(--line); padding: 2px 6px; border-radius: 3px; }
+.mode dl { display: grid; grid-template-columns: 52px 1fr; gap: 3px 8px; font-size: 13px; }
+.mode dt { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-top: 2px; }
+.mode dd { margin: 0; }
+.alt { font-size: 12.5px; border-left: 2px solid var(--line); padding-left: 8px; color: var(--muted); }
+.alt b { color: var(--ink); }
+
+/* momentos */
+.moments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.card .expo span { font-size: 11.5px; }
+.card ul { padding-left: 16px; font-size: 13px; display: grid; gap: 2px; }
+.tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--amber); }
+.tag.blue { color: var(--steel); }
+
+/* faixa inferior */
+.lower { display: grid; grid-template-columns: 1.15fr 1fr 0.8fr; gap: 10px; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.box ol, .box ul { padding-left: 18px; font-size: 13px; display: grid; gap: 2px; }
+
+/* régua de ISO */
+.iso { display: grid; gap: 4px; }
+.iso-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.iso-bar div { font-family: var(--mono); font-size: 11px; font-weight: 700; text-align: center; padding: 4px 0; border-radius: 2px; color: var(--panel); }
+.i1, .i2, .i3 { background: var(--ok); }
+.i4 { background: var(--warn); }
+.i5 { background: var(--bad); }
+.iso-key { display: grid; grid-template-columns: 3fr 1fr 1fr; font-size: 11px; color: var(--muted); text-align: center; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { text-align: left; padding: 3px 6px 3px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 500; }
+td:first-child { font-weight: 600; }
+.fec td:last-child { font-family: var(--mono); font-weight: 700; white-space: nowrap; text-align: right; color: var(--amber); }
+.scroll { overflow-x: auto; }
+
+.check { list-style: none; padding: 0 !important; }
+.check li::before { content: "☐ "; color: var(--muted); }
+
+footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+
+@media (max-width: 900px) {
+  .modes, .moments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lower { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .modes, .moments, .lower { grid-template-columns: 1fr; }
+  .always { grid-template-columns: 1fr; }
+  h1 { font-size: 32px; }
+}
+
+/* impressão: uma folha A4, sempre clara */
+@media print {
+  :root:root:root {
+    --paper: #FFFFFF; --panel: #FFFFFF; --ink: #000000; --muted: #444B55; --line: #BFC6CE;
+    --amber: #8A4D00; --amber-soft: #F7E6CC; --steel: #234C73; --steel-soft: #EAF0F6;
+    --ok: #2E7D4F; --warn: #A86A12; --bad: #A23030; color-scheme: light;
+  }
+  @page { size: A4; margin: 7mm; }
+  body { padding: 0; font-size: 8.2pt; line-height: 1.28; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sheet { max-width: none; gap: 2.4mm; }
+  h1 { font-size: 20pt; }
+  h2 { font-size: 7.5pt; }
+  h3 { font-size: 10.5pt; }
+  .top { padding-bottom: 1.5mm; }
+  .kit li, .eyebrow { font-size: 6.8pt; }
+  .always { padding: 1.6mm 2.5mm; }
+  .always ul, .mode dl, .card ul, .box ol, .box ul, table { font-size: 7.8pt; }
+  .modes, .moments { grid-template-columns: repeat(3, 1fr); gap: 2mm; }
+  .lower { grid-template-columns: 1.15fr 1fr 0.8fr; gap: 2mm; }
+  .mode, .card, .box { padding: 1.6mm 2.4mm; gap: 1.1mm; break-inside: avoid; }
+  .dial { font-size: 18pt; }
+  .expo span, .card .expo span { font-size: 7.4pt; padding: 0 1.2mm; }
+  .when, .alt { font-size: 7.6pt; }
+  .mode dt, th, .tag { font-size: 6.4pt; }
+  .mode dl { grid-template-columns: 9mm 1fr; }
+  .iso-bar div { font-size: 7pt; padding: .6mm 0; }
+  .iso-key { font-size: 6.6pt; }
+  th, td { padding: .5mm 1.5mm .5mm 0; }
+  footer { font-size: 6.8pt; padding-top: 1mm; }
+}
+</style>
+
+<main class="sheet">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Casamento · flash em 90% · sempre f/2.8</p>
+      <h1>Cartão de Campo 5D III</h1>
+    </div>
+    <ul class="kit" aria-label="Equipamento">
+      <li>5D Mark III</li><li>24-70 f/2.8</li><li>85 f/1.8</li><li>Speedlite 600</li><li>YN-622C</li><li>LED YN600</li>
+    </ul>
+  </header>
+
+  <section class="always">
+    <h2>Deixe sempre assim</h2>
+    <ul>
+      <li>RAW no <b>CF</b> + JPEG médio no <b>SD</b> (gravar separadamente)</li>
+      <li>Foco no botão <b>AF-ON</b></li>
+      <li><b>AI Servo</b> · ponto único com expansão, perto do centro</li>
+      <li>Sincronização do flash em Av: <b>1/200–1/60 auto</b></li>
+      <li>Modos C: atualização automática <b>desativada</b></li>
+      <li>YN-622C: <b>fora do canal 1</b></li>
+    </ul>
+  </section>
+
+  <section class="modes" aria-label="Modos do seletor">
+    <article class="mode">
+      <div class="mode-head"><span class="dial">C1</span><h3>Flash geral</h3></div>
+      <p class="when">Making of, cerimônia (se permitido), recepção, mesas</p>
+      <div class="expo"><span>M</span><span>f/2.8</span><span>1/100</span><span>ISO 800</span></div>
+      <dl>
+        <dt>Flash</dt><dd>E-TTL <b>rebatido</b> + cartão branco puxado</dd>
+        <dt>Foco</dt><dd>AI Servo + AF-ON</dd>
+      </dl>
+      <p class="alt">Fundo preto? <b>Suba o ISO</b> para 1600. Não feche a abertura.</p>
+    </article>
+    <article class="mode">
+      <div class="mode-head"><span class="dial">C2</span><h3>Pista</h3></div>
+      <p class="when">Pista, bolo, valsa com luz cênica</p>
+      <div class="expo"><span>M</span><span>f/2.8</span><span>1/40</span><span>ISO 1600</span></div>
+      <dl>
+        <dt>Flash</dt><dd>E-TTL direto com difusor ou rebatido</dd>
+        <dt>Foco</dt><dd>One Shot se muito escuro (acende a luz vermelha do flash)</dd>
+        <dt>Lente</dt><dd>Fique em <b>24–35mm</b></dd>
+      </dl>
+      <p class="alt">Com LED atrás: <b>1/80 · ISO 1600–3200</b></p>
+    </article>
+    <article class="mode noflash">
+      <div class="mode-head"><span class="dial">C3</span><h3>Sem flash</h3></div>
+      <p class="when">Igreja que proíbe flash, momentos discretos</p>
+      <div class="expo"><span>M</span><span>f/2.8</span><span>1/250</span><span>ISO auto 100–6400</span></div>
+      <dl>
+        <dt>Disparo</dt><dd><b>Contínuo silencioso</b></dd>
+        <dt>Foco</dt><dd>AI Servo + AF-ON</dd>
+      </dl>
+      <p class="alt">A 5D III não compensa exposição em M com ISO auto. Vestido branco ou contraluz: <b>ISO fixo</b>.</p>
+    </article>
+  </section>
+
+  <section class="moments" aria-label="Momentos">
+    <article class="card">
+      <span class="tag">Cerimônia</span>
+      <h3>Troca de alianças</h3>
+      <div class="expo"><span>f/2.8</span><span>1/125</span><span>ISO 1600</span><span>FEC −2/3 rebatido</span></div>
+      <ul>
+        <li>Combine antes com o celebrante e os noivos</li>
+        <li>Atrás do ombro do noivo, a 45°, 2–3 m, abaixado</li>
+        <li>Foco na <b>mão</b> · dispare quando a aliança passa da junta</li>
+        <li>Sem flash: <b>C3</b> · depois: repetir o gesto por 30 s</li>
+      </ul>
+    </article>
+    <article class="card">
+      <span class="tag blue">f/2.8 · cálculo a 3 m</span>
+      <h3>Grupos</h3>
+      <div class="expo"><span>35mm ≈ 1,3 m nítido</span><span>50mm ≈ 60 cm</span><span>70mm ≈ 30 cm</span></div>
+      <ul>
+        <li>2 filas: <b>24–35mm</b> e afaste-se</li>
+        <li>Família inteira, padrinhos: <b>f/4–5.6</b></li>
+        <li>Casal em distâncias diferentes: foco no rosto mais perto</li>
+      </ul>
+    </article>
+    <article class="card">
+      <span class="tag">YN-622C · flash fora</span>
+      <h3>Retrato à noite</h3>
+      <div class="expo"><span>f/2.8</span><span>1/200</span><span>ISO 400–800</span><span>Manual 1/16–1/32</span></div>
+      <ul>
+        <li>622C na câmera, flash a <b>45°</b>, a 1,5–2 m</li>
+        <li>Casal andando: flash remoto em <b>E-TTL</b></li>
+        <li>No fim, <b>volte o flash para a câmera</b></li>
+      </ul>
+    </article>
+    <article class="card">
+      <span class="tag">LED YN600</span>
+      <h3>Pista com LED</h3>
+      <div class="expo"><span>f/2.8</span><span>1/80</span><span>ISO 1600–3200</span><span>LED 100%</span></div>
+      <ul>
+        <li>Tripé atrás, a <b>2–3 m</b>, acima das cabeças</li>
+        <li><b>Sem difusor</b>, ~3200K (contorno dourado)</li>
+        <li>Contorno borrado: <b>1/100</b> · fraco: chegue mais perto</li>
+      </ul>
+    </article>
+    <article class="card">
+      <span class="tag">LED YN600</span>
+      <h3>Retrato com LED</h3>
+      <div class="expo"><span>f/2.8</span><span>1/160</span><span>ISO 800–1600</span></div>
+      <ul>
+        <li>Casal a <b>1 m</b> do painel, a 45°, <b>com difusor</b></li>
+        <li>Flash desligado, ou toque na frente com FEC −1</li>
+        <li>Making of e casal à noite, luz de cinema</li>
+      </ul>
+    </article>
+    <article class="card">
+      <span class="tag">Dia</span>
+      <h3>Sol forte em f/2.8</h3>
+      <div class="expo"><span>1/200</span><span>ISO 100</span><span>FEC −1 a −1⅓</span></div>
+      <ul>
+        <li>1º: <b>casal na sombra</b></li>
+        <li>2º: sol atrás + flash direto</li>
+        <li>3º: <b>HSS</b> pelo 622C (gasta muita pilha) · 4º: filtro ND</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="lower">
+    <article class="box">
+      <h2>Flash</h2>
+      <ol>
+        <li><b>Abertura</b>: f/2.8</li>
+        <li><b>Velocidade + ISO</b>: fundo um pouco mais escuro que o real, nunca preto</li>
+        <li><b>Flash</b> cuida das pessoas: corrija pela FEC, não pela câmera</li>
+      </ol>
+      <ul>
+        <li>Teto baixo e branco: 45° pra frente · teto alto ou escuro: parede atrás ou de lado</li>
+        <li>ISO alto = flash recarrega rápido e não esquenta</li>
+        <li>Limite com flash: <span class="v">1/200</span></li>
+      </ul>
+      <table class="fec">
+        <tr><th>Situação</th><th style="text-align:right">FEC</th></tr>
+        <tr><td>Noiva de branco perto</td><td>+1/3</td></tr>
+        <tr><td>Rosto muito perto</td><td>−1/3 a −2/3</td></tr>
+        <tr><td>Alianças / cerimônia discreta</td><td>−2/3</td></tr>
+        <tr><td>Preenchimento de dia</td><td>−1 a −1⅓</td></tr>
+      </table>
+      <div class="iso">
+        <h2>ISO na 5D III</h2>
+        <div class="iso-bar"><div class="i1">800</div><div class="i2">1600</div><div class="i3">3200</div><div class="i4">6400</div><div class="i5">12800</div></div>
+        <div class="iso-key"><span>tranquilo</span><span>ok + Lightroom</span><span>emergência</span></div>
+      </div>
+    </article>
+
+    <article class="box">
+      <h2>Deu problema</h2>
+      <div class="scroll">
+        <table>
+          <tr><th>Sintoma</th><th>Faça</th></tr>
+          <tr><td>Flash não dispara</td><td>Trava da sapata, pilhas, canal do 622C</td></tr>
+          <tr><td>Flash demora</td><td>Troque as pilhas · suba o ISO</td></tr>
+          <tr><td>Fundo preto</td><td>Suba o ISO ou baixe a velocidade</td></tr>
+          <tr><td>Rastro / fantasma</td><td>Velocidade para 1/100 ou mais</td></tr>
+          <tr><td>Foco erra no escuro</td><td>Pontos do centro · One Shot · LED</td></tr>
+          <tr><td>Segunda fila desfocada</td><td>Abra o zoom e afaste-se, ou f/4–5.6</td></tr>
+          <tr><td>Noiva escura (C3)</td><td>Saia do ISO auto, use ISO fixo</td></tr>
+          <tr><td>Mexeu em tudo</td><td>Gire o seletor pra fora e volte pro C</td></tr>
+        </table>
+      </div>
+    </article>
+
+    <article class="box">
+      <h2>Na bolsa</h2>
+      <ul class="check">
+        <li>3 jogos de AA pro flash</li>
+        <li>2 AA reserva pros 622C</li>
+        <li>Baterias LP-E6 (3+)</li>
+        <li>Pares NP-F970 pro LED</li>
+        <li>Cartões CF e SD extras</li>
+        <li>Tripé + saco de areia</li>
+        <li>Difusor do flash</li>
+        <li>Filtro ND</li>
+      </ul>
+      <h2>Antes de começar</h2>
+      <ul class="check">
+        <li>Foto de teste no altar (C3)</li>
+        <li>Testar o canal do 622C</li>
+        <li>Combinar com o celebrante</li>
+      </ul>
+    </article>
+  </section>
+
+  <footer>Valores de partida: faça uma foto de teste e ajuste. Medidas de nitidez e de potência são cálculos aproximados, e as demais escolhas são recomendação de trabalho.</footer>
+</main>
+</body></html>
